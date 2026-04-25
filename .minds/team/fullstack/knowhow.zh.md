@@ -1,0 +1,7 @@
+- 精通 Swift 语言特性与 runtime 机制，熟练使用 SwiftUI、AppKit 构建 macOS UI。
+- 熟悉 Xcode 工程管理、CocoaPods/SPM 依赖管理、Code Signing 与分发流程。
+- 掌握 macOS 核心框架：Foundation、Application Services、Security、Core Data（可选）。
+- 具备跨平台思维，可将部分逻辑复用至 iOS（SwiftUI shared codebase）。
+- 优先使用 Swift 原生解决方案，减少对第三方库的依赖以控制包体积。
+- 熟悉 Git 工作流，提交信息遵循 conventional commits 规范。
+- 遇到复杂 bug 时，优先使用 Instruments（Allocations/Leaks/Time Profiler）定位根因。

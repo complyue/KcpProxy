@@ -1,0 +1,6 @@
+- 不要在未备份的情况下直接修改主分支代码；始终从 feature 分支工作。
+- 涉及 Memory Leak、Thread Safety 问题，不要只打补丁，需追溯调用链与生命周期。
+- macOS 特有的 Sandbox 权限、Notarization 分发要求不要忽视，否则会导致分发失败。
+- 引入新第三方库前需评估维护状态与兼容性，避免"库 abandonment"风险。
+- 不要在主线程执行耗时 I/O 操作，使用 GCD/async-await 正确处理并发。
+- 涉及 UI 更新必须在主线程执行，避免数据竞争导致的 UI 状态异常。

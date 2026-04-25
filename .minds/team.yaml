@@ -1,0 +1,25 @@
+member_defaults:
+  provider: minimaxi.com-coding-plan
+  model: MiniMax-M2.7
+
+default_responder: fullstack
+
+shell_specialists:
+  - fullstack
+
+members:
+  fullstack:
+    name: Fullstack Developer
+    provider: minimaxi.com-coding-plan
+    model: MiniMax-M2.7
+    gofor:
+      - 适合需要完整实现 macOS 应用功能时找 TA
+      - 适合让 TA 负责从 UI 到后端逻辑的端到端开发
+      - 可以期待 TA 返回可编译运行的代码及测试验证结果
+    nogo:
+      - 不要让 TA 做产品需求定义或项目管理决策
+      - 若涉及架构选型重大决策，应先与团队讨论确认
+    toolsets:
+      - ws_read
+      - ws_mod
+      - os
