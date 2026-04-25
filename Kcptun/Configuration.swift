@@ -20,6 +20,11 @@ let KCPTUN_STOP = Notification.Name("KCPTUN_STOP")
 let USERDEFAULTS_KCPTUN_ON = "KcptunOn"
 let USERDEFAULTS_PROFILE = "Profile"
 
+// Tinyproxy Helper
+let TINYPROXY_START = Notification.Name("TINYPROXY_START")
+let TINYPROXY_STOP = Notification.Name("TINYPROXY_STOP")
+let TINYPROXY_CONF_DIR = "/tmp/tinyproxy"
+
 // Version Checker Helper
 let _VERSION_XML_URL = "https://raw.githubusercontent.com/paradiseduo/Kcptun/master/Kcptun/Info.plist"
 let _VERSION_XML_LOCAL:String = Bundle.main.bundlePath + "/Contents/Info.plist"

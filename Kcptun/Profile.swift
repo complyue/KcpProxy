@@ -26,6 +26,12 @@ class Profile {
     var dscp: Int = 0
     var nocomp: Bool = true
     
+    // Local HTTP proxy settings (KcpProxy)
+    var localProxyPort: Int = 9876
+    var upstreamProxy: String = "127.0.0.1:1087"
+    var upstreamUsername: String = ""
+    var upstreamPassword: String = ""
+    
     var json: [String: AnyObject] {
         get {
             let conf:[String: AnyObject] = ["host": "\(self.host)" as AnyObject,
@@ -40,7 +46,11 @@ class Profile {
                                             "datashard": NSNumber(value: self.datashard) as AnyObject,
                                             "parityshard": NSNumber(value: self.parityshard) as AnyObject,
                                             "dscp": NSNumber(value: self.dscp) as AnyObject,
-                                            "nocomp": NSNumber(value: self.nocomp) as AnyObject
+                                            "nocomp": NSNumber(value: self.nocomp) as AnyObject,
+                                            "localProxyPort": NSNumber(value: self.localProxyPort) as AnyObject,
+                                            "upstreamProxy": self.upstreamProxy as AnyObject,
+                                            "upstreamUsername": self.upstreamUsername as AnyObject,
+                                            "upstreamPassword": self.upstreamPassword as AnyObject
                                             ]
             return conf
         }
@@ -51,26 +61,33 @@ class Profile {
         user.setValue(self.json, forKey: USERDEFAULTS_PROFILE)
         user.synchronize()
         Kcptun.shared.stop()
+        TinyproxyManager.shared.stop()
         DispatchQueue.main.asyncAfter(deadline: DispatchTime.now()+1) {
             Kcptun.shared.start()
+            TinyproxyManager.shared.start()
         }
     }
     
     public func loadProfile() {
         if let p = UserDefaults.standard.value(forKey: USERDEFAULTS_PROFILE) as? [String: AnyObject] {
-            self.host = p["host"] as! String
-            self.remotePort = (p["remotePort"] as! NSNumber).intValue
-            self.localPort = (p["localPort"] as! NSNumber).intValue
-            self.key = p["key"] as! String
-            self.crypt = p["crypt"] as! String
-            self.mode = p["mode"] as! String
-            self.mtu = (p["mtu"] as! NSNumber).intValue
-            self.sndwnd = (p["sndwnd"] as! NSNumber).intValue
-            self.rcvwnd = (p["rcvwnd"] as! NSNumber).intValue
-            self.datashard = (p["datashard"] as! NSNumber).intValue
-            self.parityshard = (p["parityshard"] as! NSNumber).intValue
-            self.dscp = (p["dscp"] as! NSNumber).intValue
-            self.nocomp = (p["nocomp"] as! NSNumber).boolValue
+            self.host = (p["host"] as? String) ?? "127.0.0.1"
+            self.remotePort = (p["remotePort"] as? NSNumber)?.intValue ?? 29900
+            self.localPort = (p["localPort"] as? NSNumber)?.intValue ?? 1087
+            self.key = (p["key"] as? String) ?? "password"
+            self.crypt = (p["crypt"] as? String) ?? "aes"
+            self.mode = (p["mode"] as? String) ?? "fast"
+            self.mtu = (p["mtu"] as? NSNumber)?.intValue ?? 1350
+            self.sndwnd = (p["sndwnd"] as? NSNumber)?.intValue ?? 512
+            self.rcvwnd = (p["rcvwnd"] as? NSNumber)?.intValue ?? 512
+            self.datashard = (p["datashard"] as? NSNumber)?.intValue ?? 10
+            self.parityshard = (p["parityshard"] as? NSNumber)?.intValue ?? 3
+            self.dscp = (p["dscp"] as? NSNumber)?.intValue ?? 0
+            self.nocomp = (p["nocomp"] as? NSNumber)?.boolValue ?? true
+            // KcpProxy fields
+            self.localProxyPort = (p["localProxyPort"] as? NSNumber)?.intValue ?? 9876
+            self.upstreamProxy = (p["upstreamProxy"] as? String) ?? "127.0.0.1:1087"
+            self.upstreamUsername = (p["upstreamUsername"] as? String) ?? ""
+            self.upstreamPassword = (p["upstreamPassword"] as? String) ?? ""
         }
     }
     
@@ -103,5 +120,29 @@ class Profile {
                 "--log",LOG_PATH
             ]
         }
+    }
+    
+    /// Generate tinyproxy.conf content from current profile settings.
+    /// Local proxy: no auth. Upstream proxy: basic auth if username+password set.
+    func tinyproxyConf() -> String {
+        var lines: [String] = [
+            "User nobody",
+            "Group nobody",
+            "Port \(localProxyPort)",
+            "Timeout 600",
+            "MaxClients 100",
+            "Allow 127.0.0.1",
+            "Allow ::1",
+            "LogLevel Info",
+        ]
+        
+        // Upstream: basic auth if credentials provided
+        if !upstreamUsername.isEmpty && !upstreamPassword.isEmpty {
+            lines.append("upstream http \(upstreamUsername):\(upstreamPassword)@\(upstreamProxy)")
+        } else {
+            lines.append("upstream http \(upstreamProxy)")
+        }
+        
+        return lines.joined(separator: "\n") + "\n"
     }
 }

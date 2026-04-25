@@ -18,6 +18,7 @@ class AppDelegate: NSObject, NSApplicationDelegate {
         
         if UserDefaults.standard.bool(forKey: USERDEFAULTS_KCPTUN_ON) {
             Kcptun.shared.start()
+            TinyproxyManager.shared.start()
         }
         
         let runningApps = NSWorkspace.shared.runningApplications
